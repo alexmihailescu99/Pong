@@ -1,6 +1,7 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 #include <SDL.h>
+#include <SDL_image.h>
 #include <iostream>
 #include <string>
 typedef unsigned int uint;
@@ -27,9 +28,10 @@ private:
 	// E.G. Adding a new draw function requires calling this function first
 	bool createWindow();
 	// Load an image into an SDL_Surface
+	// Supported image formats : BMP, PNG
 	// Returns true if successful, or false if not
 	// Sets the currImgSurface and currImgPath fields if succesful
-	bool loadImage(std::string imagePath);
+	bool loadImage(std::string imagePath, std::string imageFormat);
 	std::string title;
 	int xPos = SDL_WINDOWPOS_UNDEFINED;
 	int yPos = SDL_WINDOWPOS_UNDEFINED;
@@ -58,7 +60,8 @@ public:
 	// Draw the specified color(in RGB) onto the SDL_Surface of the SDL_Window, then update the window
 	void drawColor(uint r, uint g, uint b);
 	// Draw the image from the specified path onto the SDL_Surface of the SDL_Window, then update the window
-	void drawImage(std::string imagePath);
+	// Supported image formats : BMP, PNG, JPG
+	void drawImage(std::string imagePath, std::string imageFormat);
 	// Deallocates memory for the Window object
 	// Calls the specific SDL Destruction functions
 	void destroyWindow();

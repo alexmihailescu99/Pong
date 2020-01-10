@@ -93,8 +93,14 @@ void Window::drawColor(uint r, uint g, uint b) {
 	}
 }
 
-bool Window::loadImage(std::string imagePath) {
-	SDL_Surface* imageSurface = SDL_LoadBMP(imagePath.c_str());
+bool Window::loadImage(std::string imagePath, std::string imageFormat) {
+	SDL_Surface* imageSurface = nullptr;
+	if (imageFormat == "BMP") {
+		imageSurface = SDL_LoadBMP(imagePath.c_str());
+	}
+	if (imageFormat == "PNG" || imageFormat == "JPG") {
+		imageSurface = IMG_Load(imagePath.c_str());
+	}
 	if (imageSurface != nullptr) {
 		this->currImgSurface = imageSurface;
 		this->currImgPath = imagePath;
@@ -106,7 +112,7 @@ bool Window::loadImage(std::string imagePath) {
 	}
 }
 
-void Window::drawImage(std::string imagePath) {
+void Window::drawImage(std::string imagePath, std::string imageFormat) {
 	if (window == nullptr) {
 		if (!(this->createWindow())) {
 			return;
@@ -115,8 +121,20 @@ void Window::drawImage(std::string imagePath) {
 	// Only load the image if the currImgSurface field is empty or the image is different from what we already have
 	if (this->currImgSurface == nullptr
 		|| imagePath != this->currImgPath) {
-		if (!this->loadImage(imagePath)) {
-			return;
+		if (imageFormat == "BMP") {
+			if (!this->loadImage(imagePath, "BMP")) {
+				return;
+			}
+		}
+		if (imageFormat == "PNG") {
+			if (!this->loadImage(imagePath, "PNG")) {
+				return;
+			}
+		}
+		if (imageFormat == "JPG") {
+			if (!this->loadImage(imagePath, "JPG")) {
+				return;
+			}
 		}
 		this->stretching = false;
 	}
@@ -136,6 +154,9 @@ void Window::drawImage(std::string imagePath) {
 		SDL_BlitScaled(this->currImgSurface, NULL, this->surface, &stretchRect);
 	}
 	if (!stretching) {
+		if (imageFormat == "PNG") {
+			SDL_ConvertSurface(this->currImgSurface, this->surface->format, 0);
+		}
 		SDL_BlitSurface(this->currImgSurface, NULL, this->surface, NULL);
 	}
 	SDL_UpdateWindowSurface(this->window);

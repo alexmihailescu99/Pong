@@ -19,6 +19,10 @@ bool Game::init() {
 		std::cerr << "Error: Could not initialise SDL subsystems!\n";
 		return false;
 	}
+	int imgFlag = IMG_INIT_PNG;
+	if (!(IMG_Init(imgFlag) & imgFlag)) {
+		std::cerr << "Could not init PNG loading!\n";
+	}
 	Window::getInstance()->setWindowTitle("Pong");
 	Window::getInstance()->setWindowWidth(SCREEN_WIDTH);
 	Window::getInstance()->setWindowHeight(SCREEN_HEIGHT);
@@ -55,6 +59,6 @@ void Game::run() {
 				}
 			}
 		}
-		Window::getInstance()->drawImage("stretch.bmp");
+		Window::getInstance()->drawImage("image.jpg", "JPG");
 	}
 }
