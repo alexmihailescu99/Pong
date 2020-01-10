@@ -42,6 +42,8 @@ private:
 	SDL_Surface* currImgSurface = nullptr;
 	// Needed to prevent loading the same image over and over again
 	std::string currImgPath;
+	// Needed to know if we are stretching source image or not
+	bool stretching = false;
 public:
 	static Window* getInstance();
 	void setWindowTitle(std::string title);
@@ -61,5 +63,4 @@ public:
 	// Calls the specific SDL Destruction functions
 	void destroyWindow();
 };
-
 #endif // WINDOW_H_

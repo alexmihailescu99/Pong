@@ -33,12 +33,28 @@ Game* Game::getInstance() {
 }
 
 void Game::run() {
-	while (this->quit != true) {
+	while (!this->quit) {
+		// Listen for events
 		while (SDL_PollEvent((&this->eventHandler)) != 0) {
-			if ((this->eventHandler).type == SDL_QUIT) {
+			// If the user presses the X button
+			if (eventHandler.type == SDL_QUIT) {
 				this->quit = true;
 			}
+			// If the user presses a key
+			if (eventHandler.type == SDL_KEYDOWN) {
+				// Check which key it is
+				switch (eventHandler.key.keysym.sym) {
+				case SDLK_DOWN:
+					std::cout << "Down key pressed!\n";
+					break;
+				case SDLK_UP:
+					std::cout << "Up key pressed!\n";
+					break;
+				default:
+					break;
+				}
+			}
 		}
-		Window::getInstance()->drawImage("hello_world.bmp");
+		Window::getInstance()->drawImage("stretch.bmp");
 	}
 }

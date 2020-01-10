@@ -118,8 +118,26 @@ void Window::drawImage(std::string imagePath) {
 		if (!this->loadImage(imagePath)) {
 			return;
 		}
+		this->stretching = false;
 	}
-	SDL_BlitSurface(this->currImgSurface, NULL, this->surface, NULL);
+	// If the image is smaller than the screen, scale it
+	if (this->currImgSurface->w != this->surface->w
+		|| this->currImgSurface->h != this->surface->h) {
+		this->stretching = true;
+		SDL_Surface* scaledImgSurface = SDL_ConvertSurface(this->currImgSurface,
+			this->surface->format, 0);
+		SDL_FreeSurface(this->currImgSurface);
+		this->currImgSurface = scaledImgSurface;
+		SDL_Rect stretchRect;
+		stretchRect.x = 0;
+		stretchRect.y = 0;
+		stretchRect.w = this->width;
+		stretchRect.h = this->height;
+		SDL_BlitScaled(this->currImgSurface, NULL, this->surface, &stretchRect);
+	}
+	if (!stretching) {
+		SDL_BlitSurface(this->currImgSurface, NULL, this->surface, NULL);
+	}
 	SDL_UpdateWindowSurface(this->window);
 }
 
@@ -134,8 +152,3 @@ void Window::destroyWindow() {
 		delete this->instance;
 	}
 }
-
-
-
-
-
