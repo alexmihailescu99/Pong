@@ -4,6 +4,8 @@
 #include <SDL_image.h>
 #include <iostream>
 #include <string>
+#include "Loader.h"
+class GameObject;
 typedef unsigned int uint;
 // Wrapper class for SDL_Window
 // Follows singleton design pattern
@@ -20,50 +22,45 @@ private:
 	static Window* instance;
 	Window();
 	~Window();
-	// Creates an SDL_Window, along with an SDLSurface
-	// Returns true if window was created, false if error
-	// Assumes that SDL subsystems are initialised by the Game class
-	// The SDL_Window is created by the draw functions if needed
-	// This abstracts away some code from the programmer, but is rather dangerous
-	// E.G. Adding a new draw function requires calling this function first
-	bool createWindow();
-	// Load an image into an SDL_Surface
-	// Supported image formats : BMP, PNG
-	// Returns true if successful, or false if not
-	// Sets the currImgSurface and currImgPath fields if succesful
-	bool loadImage(std::string imagePath, std::string imageFormat);
 	std::string title;
 	int xPos = SDL_WINDOWPOS_UNDEFINED;
 	int yPos = SDL_WINDOWPOS_UNDEFINED;
-	uint width = -1;
-	uint height = -1;
+	int width = -1;
+	int height = -1;
 	SDL_WindowFlags flag = SDL_WINDOW_OPENGL;
 	SDL_Window* window = nullptr;
 	SDL_Surface* surface = nullptr;
-	// Needed to prevent loading the same image over and over again
-	SDL_Surface* currImgSurface = nullptr;
-	// Needed to prevent loading the same image over and over again
-	std::string currImgPath;
-	// Needed to know if we are stretching source image or not
-	bool stretching = false;
+	SDL_Renderer* renderer = nullptr;
 public:
 	static Window* getInstance();
 	void setWindowTitle(std::string title);
 	std::string getWindowTitle();
 	void setWindowXPos(int xPos);
 	void setWindowYPos(int yPos);
-	void setWindowWidth(uint width);
-	void setWindowHeight(uint height);
+	void setWindowWidth(int width);
+	int getWindowWidth() { return this->width; };
+	void setWindowHeight(int height);
+	int getWindowHeight() { return this->height; };
 	void setWindowFlag(SDL_WindowFlags flag);
+	// Creates an SDL_Window, along with an SDLSurface
+	// Returns true if window was created, false if error
+	// Assumes that SDL subsystems are initialised by the Game class
+	bool createWindow();
 	// Returns a pointer to the SDL_Window field
 	SDL_Window* getWindow();
+	// Load an image into an SDL_Surface
+	// Supported image formats : BMP, PNG
+	// Returns true if successful, or false if not
+	// Sets the currImgSurface and currImgPath fields if succesful
+	
 	// Draw the specified color(in RGB) onto the SDL_Surface of the SDL_Window, then update the window
 	void drawColor(uint r, uint g, uint b);
 	// Draw the image from the specified path onto the SDL_Surface of the SDL_Window, then update the window
 	// Supported image formats : BMP, PNG, JPG
 	void drawImage(std::string imagePath, std::string imageFormat);
-	// Deallocates memory for the Window object
-	// Calls the specific SDL Destruction functions
-	void destroyWindow();
+	void drawTexture(std::string texturePath, std::string textureFormat, int xPos, int yPos);
+	// Draw specified GameObject onto the window
+	void draw(GameObject* obj);
+	SDL_Renderer* getRenderer() { return this->renderer; };
 };
 #endif // WINDOW_H_

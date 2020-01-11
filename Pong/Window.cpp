@@ -1,5 +1,5 @@
 #include "Window.h"
-
+#include "GameObject.h"
 Window* Window::instance = nullptr;
 
 Window::Window() {
@@ -7,7 +7,15 @@ Window::Window() {
 }
 
 Window::~Window() {
+	SDL_DestroyRenderer(this->renderer);
+	this->renderer = nullptr;
+	SDL_FreeSurface(this->surface);
+	this->surface = nullptr;
 	SDL_DestroyWindow(this->window);
+	this->window = nullptr;
+	if (this->instance) {
+		delete this->instance;
+	}
 }
 
 
@@ -35,11 +43,11 @@ void Window::setWindowYPos(int yPos) {
 	this->yPos = yPos;
 }
 
-void Window::setWindowHeight(uint height) {
+void Window::setWindowHeight(int height) {
 	this->height = height;
 }
 
-void Window::setWindowWidth(uint width) {
+void Window::setWindowWidth(int width) {
 	this->width = width;
 }
 
@@ -74,6 +82,13 @@ bool Window::createWindow() {
 		std::cerr << "SDL surface could not be created! (SDL Error)\n";
 		return false;
 	}
+	this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
+	if (!this->renderer) {
+		std::cerr << "SDL Renderer could not be created! (SDL Error)\n";
+		return false;
+	}
+	SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+	return true;
 }
 
 void Window::drawColor(uint r, uint g, uint b) {
@@ -93,83 +108,65 @@ void Window::drawColor(uint r, uint g, uint b) {
 	}
 }
 
-bool Window::loadImage(std::string imagePath, std::string imageFormat) {
-	SDL_Surface* imageSurface = nullptr;
-	if (imageFormat == "BMP") {
-		imageSurface = SDL_LoadBMP(imagePath.c_str());
-	}
-	if (imageFormat == "PNG" || imageFormat == "JPG") {
-		imageSurface = IMG_Load(imagePath.c_str());
-	}
-	if (imageSurface != nullptr) {
-		this->currImgSurface = imageSurface;
-		this->currImgPath = imagePath;
-		return true;
-	}
-	else {
-		std::cerr << "Could not load image from " << imagePath << std::endl;
-		return false;
-	}
-}
-
-void Window::drawImage(std::string imagePath, std::string imageFormat) {
+void Window::drawTexture(std::string texturePath, std::string textureFormat, int xPos, int yPos) {
 	if (window == nullptr) {
 		if (!(this->createWindow())) {
 			return;
 		}
 	}
-	// Only load the image if the currImgSurface field is empty or the image is different from what we already have
-	if (this->currImgSurface == nullptr
-		|| imagePath != this->currImgPath) {
-		if (imageFormat == "BMP") {
-			if (!this->loadImage(imagePath, "BMP")) {
-				return;
-			}
+	SDL_Texture* texture = nullptr;
+	if (textureFormat == "BMP") {
+		texture = Loader::getInstance()->loadTexture(texturePath, "BMP");
+		if (texture == nullptr) {
+			return;
 		}
-		if (imageFormat == "PNG") {
-			if (!this->loadImage(imagePath, "PNG")) {
-				return;
-			}
-		}
-		if (imageFormat == "JPG") {
-			if (!this->loadImage(imagePath, "JPG")) {
-				return;
-			}
-		}
-		this->stretching = false;
 	}
-	// If the image is smaller than the screen, scale it
-	if (this->currImgSurface->w != this->surface->w
-		|| this->currImgSurface->h != this->surface->h) {
-		this->stretching = true;
-		SDL_Surface* scaledImgSurface = SDL_ConvertSurface(this->currImgSurface,
-			this->surface->format, 0);
-		SDL_FreeSurface(this->currImgSurface);
-		this->currImgSurface = scaledImgSurface;
-		SDL_Rect stretchRect;
-		stretchRect.x = 0;
-		stretchRect.y = 0;
-		stretchRect.w = this->width;
-		stretchRect.h = this->height;
-		SDL_BlitScaled(this->currImgSurface, NULL, this->surface, &stretchRect);
-	}
-	if (!stretching) {
-		if (imageFormat == "PNG") {
-			SDL_ConvertSurface(this->currImgSurface, this->surface->format, 0);
+	if (textureFormat == "PNG") {
+		texture = Loader::getInstance()->loadTexture(texturePath, "PNG");
+		if (texture == nullptr) {
+			std::cerr << "Could not load texture from " << texturePath << std::endl;
+			return;
 		}
-		SDL_BlitSurface(this->currImgSurface, NULL, this->surface, NULL);
 	}
-	SDL_UpdateWindowSurface(this->window);
+	if (textureFormat == "JPG") {
+		texture = Loader::getInstance()->loadTexture(texturePath, "JPG");
+		if (texture == nullptr) {
+			return;
+		}
+	}
+	SDL_RenderClear(this->renderer);
+	SDL_Rect dstRect;
+	int width = 0, height = 0;
+	SDL_QueryTexture(texture, NULL, NULL, &width, &height);
+	dstRect.w = width;
+	dstRect.h = height;
+	dstRect.x = xPos;
+	dstRect.y = yPos;
+
+	SDL_RenderCopy(this->renderer, texture, NULL, &dstRect);
+	SDL_RenderPresent(this->renderer);
+	SDL_DestroyTexture(texture);
 }
 
-void Window::destroyWindow() {
-	SDL_FreeSurface(this->surface);
-	this->surface = nullptr;
-	SDL_FreeSurface(this->currImgSurface);
-	this->currImgSurface = nullptr;
-	SDL_DestroyWindow(this->window);
-	this->window = nullptr;
-	if (this->instance) {
-		delete this->instance;
+void Window::draw(GameObject* obj) {
+	if (window == nullptr) {
+		if (!(this->createWindow())) {
+			return;
+		}
 	}
+	if (obj->getCurrentFrame() == nullptr) {
+		std::cerr << "Can not draw " << obj->getTag() << " : No texture found" << std::endl;
+		return;
+	}
+	SDL_Rect dstRect;
+	dstRect.w = obj->getWidth();
+	dstRect.h = obj->getHeight();
+	dstRect.x = obj->getXPos();
+	dstRect.y = obj->getYPos();
+	if (obj->isFlipped()) {
+		SDL_RenderCopyEx(this->renderer, obj->getCurrentFrame(), NULL, &dstRect, NULL, NULL, SDL_FLIP_HORIZONTAL);
+		return;
+	}
+	SDL_RenderCopy(this->renderer, obj->getCurrentFrame(), NULL, &dstRect);
 }
+
