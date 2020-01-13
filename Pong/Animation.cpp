@@ -24,8 +24,13 @@ void Animation::play() {
 	this->parent->setCurrentFrame(this->frames.at(currFrame));
 	// Move on to the next frame
 	this->currFrame++;
+	SDL_Delay(10);
 	// Check if we are out of bounds
 	if (this->currFrame >= this->noFrames) {
 		this->currFrame = 0;
 	}
+}
+
+SDL_Texture* Animation::getFrame(int frameNumber) {
+	return this->frames.at(frameNumber);
 }

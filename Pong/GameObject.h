@@ -9,18 +9,23 @@
 #include "Animation.h"
 class GameObject {
 private:
-	SDL_Texture* currentFrame = nullptr;
+	bool isVisible = true;
+	bool flipped = false;
+	bool animated = false;
+	bool walking = false;
+	bool running = false;
+	bool active = true;
 	int x;
 	int y;
 	int h;
 	int w;
-	bool isVisible;
 	std::string tag;
-	bool flipped = false;
 	std::vector<Animation*> animations;
 	Animation* currAnimation;
+	SDL_Texture* currentFrame = nullptr;
 public:
 	GameObject(std::string texturePath, std::string textureFormat, std::string tag);
+	GameObject(std::string tag, Animation* idleAnimation);
 	~GameObject();
 	void setVisible(bool isVisible) { this->isVisible = isVisible; };
 	void setXPos(int xPos) { this->x = xPos; };
@@ -43,6 +48,14 @@ public:
 	void addAnimation(Animation* animation);
 	void playCurrAnimation();
 	Animation* findAnimationByTag(std::string animationTag);
+	void setAnimated(bool val) { this->animated = val; };
+	bool isAnimated() { return this->animated; };
+	void setWalking(bool val) { this->walking = val; };
+	bool isWalking() { return this->walking; };
+	void setRunning(bool val) { this->walking = val; };
+	bool isRunning() { return this->running; };
+	void scale(int scaleVal);
+	void setActive(bool val);
 };
 
 #endif // GAME_OBJECT_

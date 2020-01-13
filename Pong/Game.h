@@ -29,6 +29,8 @@ public:
 	void run();
 	// Add a new GameObject into the world
 	void addGameObject(std::string texturePath, std::string textureFormat, std::string tag);
+	void addGameObject(std::string tag, Animation* idleAnimation);
+	void removeGameObject(std::string tag);
 	// Returns object if found, nullptr if not
 	GameObject* findObjectByTag(std::string tag);
 };

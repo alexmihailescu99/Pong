@@ -6,18 +6,32 @@ GameObject::GameObject(std::string texturePath, std::string textureFormat, std::
 		std::cerr << "Error, could not create GameObject\n";
 	}
 	this->tag = tag;
-	this->isVisible = true;
 	// Save the width and height of the texture into the object
 	SDL_QueryTexture(this->currentFrame, NULL, NULL, &this->w, &this->h);
 	this->x = 0;
 	this->y = 0;
+	this->animated = false;
+}
+
+GameObject::GameObject(std::string tag, Animation* idleAnimation) {
+	this->tag = tag;
+	this->addAnimation(idleAnimation);
+	this->currentFrame = idleAnimation->getFrame(0);
+	this->setCurrAnimation(idleAnimation);
+	// Save the width and height of the texture into the object
+	SDL_QueryTexture(this->currentFrame, NULL, NULL, &this->w, &this->h);
+	this->x = 0;
+	this->y = 0;
+	this->animated = true;
 }
 
 GameObject::~GameObject() {
 	SDL_DestroyTexture(this->currentFrame);
 	this->currentFrame = nullptr;
-	for (Animation* anim : this->animations) {
-		delete anim;
+	if (this->animated) {
+		for (Animation* anim : this->animations) {
+			delete anim;
+		}
 	}
 }
 
@@ -28,6 +42,20 @@ void GameObject::addAnimation(Animation* animation) {
 
 void GameObject::playCurrAnimation() {
 	this->currAnimation->play();
+}
+
+void GameObject::scale(int scaleVal) {
+	if (scaleVal == 0) {
+		return;
+	}
+	if (scaleVal > 0) {
+		this->w *= scaleVal;
+		this->h *= scaleVal;
+	}
+	else {
+		this->w /= scaleVal;
+		this->h /= scaleVal;
+	}
 }
 
 Animation* GameObject::findAnimationByTag(std::string animationTag) {

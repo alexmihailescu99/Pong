@@ -22,6 +22,7 @@ public:
 	GameObject* getParent() { return this->parent; };
 	void setTag(std::string tag) { this->tag = tag; };
 	std::string getTag() { return this->tag; };
+	SDL_Texture* getFrame(int frameNumber);
 };
 
 #endif // ANIMATION_H_
