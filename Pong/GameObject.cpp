@@ -10,6 +10,11 @@ GameObject::GameObject(std::string texturePath, std::string textureFormat, std::
 	SDL_QueryTexture(this->currentFrame, NULL, NULL, &this->w, &this->h);
 	this->x = 0;
 	this->y = 0;
+	this->objRect = new SDL_Rect;
+	this->objRect->h = this->h;
+	this->objRect->w = this->w;
+	this->objRect->x = this->x;
+	this->objRect->y = this->y;
 	this->animated = false;
 }
 
@@ -22,12 +27,19 @@ GameObject::GameObject(std::string tag, Animation* idleAnimation) {
 	SDL_QueryTexture(this->currentFrame, NULL, NULL, &this->w, &this->h);
 	this->x = 0;
 	this->y = 0;
+	this->objRect = new SDL_Rect;
+	this->objRect->h = this->h;
+	this->objRect->w = this->w;
+	this->objRect->x = this->x;
+	this->objRect->y = this->y;
 	this->animated = true;
 }
 
 GameObject::~GameObject() {
 	SDL_DestroyTexture(this->currentFrame);
 	this->currentFrame = nullptr;
+	delete this->objRect;
+	this->objRect = nullptr;
 	if (this->animated) {
 		for (Animation* anim : this->animations) {
 			delete anim;

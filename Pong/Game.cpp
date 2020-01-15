@@ -134,13 +134,17 @@ void Game::run() {
 	Uint32 frameStart;
 	int frameTime;
 	GameObject* coin = Game::getInstance()->findObjectByTag("Coin");
+	GameObject* hp = Game::getInstance()->findObjectByTag("HPPotion");
 	while (!this->quit) {
 		frameStart = SDL_GetTicks();
 		// Listen for events
 		this->handleEvents();
  		this->drawGameObjects();
-		if (coin->getXPos() == player->getXPos()) {
+		if (SDL_HasIntersection(this->player->getRect(), coin->getRect()) == SDL_TRUE) {
 			coin->setVisible(false);
+		}
+		if (SDL_HasIntersection(this->player->getRect(), hp->getRect()) == SDL_TRUE) {
+			hp->setVisible(false);
 		}
 		frameTime = SDL_GetTicks() - frameStart;
 		if (DELAY > frameTime) {

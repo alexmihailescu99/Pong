@@ -23,15 +23,16 @@ private:
 	std::vector<Animation*> animations;
 	Animation* currAnimation;
 	SDL_Texture* currentFrame = nullptr;
+	SDL_Rect* objRect;
 public:
 	GameObject(std::string texturePath, std::string textureFormat, std::string tag);
 	GameObject(std::string tag, Animation* idleAnimation);
 	~GameObject();
 	void setVisible(bool isVisible) { this->isVisible = isVisible; };
-	void setXPos(int xPos) { this->x = xPos; };
-	void setYPos(int yPos) { this->y = yPos; };
-	void setWidth(int width) { this->w = width; };
-	void setHeight(int height) { this->h = height; };
+	void setXPos(int xPos) { this->x = xPos; this->objRect->x = xPos; };
+	void setYPos(int yPos) { this->y = yPos; this->objRect->y = yPos;};
+	void setWidth(int width) { this->w = width; this->objRect->w = width; };
+	void setHeight(int height) { this->h = height; this->objRect->h = height; };
 	void setTag(std::string tag) { this->tag = tag; };
 	int getXPos() { return this->x; };
 	int getYPos() { return this->y; };
@@ -56,6 +57,7 @@ public:
 	bool isRunning() { return this->running; };
 	void scale(int scaleVal);
 	void setActive(bool val);
+	SDL_Rect* getRect() { return this->objRect; };
 };
 
 #endif // GAME_OBJECT_

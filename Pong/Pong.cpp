@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     obj = Game::getInstance()->findObjectByTag("Enemy");
     obj->setWidth(236);
     obj->setHeight(298);
-    obj->setYPos(Window::getInstance()->getWindowHeight() - obj->getHeight());
+    obj->setYPos(Window::getInstance()->getWindowHeight() - obj->getHeight() + 50);
     obj->setXPos(400);
     obj = Game::getInstance()->findObjectByTag("Coin");
     obj->setXPos(200);
